@@ -8,15 +8,26 @@ document.addEventListener('DOMContentLoaded', function () {
         chatProfilePicture: document.getElementById('chat-profile-picture'),
         messageInput: document.getElementById('message-input'),
         sendMessageButton: document.getElementById('send-message-button'),
-        showConversationsButton: document.getElementById('show-conversations-button'),
         searchConversationsInput: document.getElementById('search-conversations'), 
-        conversationsSidebar: new bootstrap.Collapse(document.getElementById('conversations-sidebar'), { toggle: false })
+        conversationsSidebar: new bootstrap.Collapse(document.getElementById('conversations-sidebar'), { toggle: false }),
+        showConversationsButton: document.getElementById('show-conversations-button') // Añadido
     };
 
     // Agregar event listeners
     elements.sendMessageButton.addEventListener('click', sendMessage);
-    elements.showConversationsButton.addEventListener('click', toggleConversationsSidebar);
     elements.searchConversationsInput.addEventListener('input', filterConversations);
+    elements.searchConversationsInput.addEventListener('keydown', function(event) {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            const username = elements.searchConversationsInput.value.trim().toLowerCase();
+            startConversationByUsername(username);
+        }
+    });
+
+    // Añadir event listener para el botón "Mostrar Conversaciones"
+    elements.showConversationsButton.addEventListener('click', function() {
+        elements.conversationsSidebar.toggle();
+    });
 
     // Renderizar las conversaciones
     renderConversations();
@@ -121,14 +132,19 @@ document.addEventListener('DOMContentLoaded', function () {
         renderConversations(filteredConversations);
     }
 
-    // Buscar e iniciar conversación por nombre de usuario, esta me funciona a medias, me encuentra el nombre pero cunado hago un even
-    //evento ,solo funciona cuando digito parte del nombre, no me funciona usando el boton buscar
+    // Buscar e iniciar conversación por nombre de usuario
     function startConversationByUsername(username) {
-        const conversation = conversations.find(convo => convo.name.toLowerCase() === username.toLowerCase());
+        const conversation = conversations.find(convo => convo.name.toLowerCase().startsWith(username));
         if (conversation) {
             selectConversation(conversation);
         } else {
             alert('Conversación no encontrada');
         }
     }
+
+    // Llamada a la función startConversationByUsername
+    document.getElementById('searchButton').addEventListener('click', function() {
+        const username = document.getElementById('usernameInput').value.trim().toLowerCase();
+        startConversationByUsername(username);
+    });
 });
